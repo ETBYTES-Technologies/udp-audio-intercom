@@ -10,14 +10,14 @@ A minimal real-time audio intercom over a local network. `transmitter.py` captur
 Install dependencies:
 
 ```bash
-pip install pyaudio
+pip install -r requirements.txt
 ```
 
 On Linux, PyAudio needs PortAudio's headers first:
 
 ```bash
 sudo apt install portaudio19-dev
-pip install pyaudio
+pip install -r requirements.txt
 ```
 
 ## Setup
