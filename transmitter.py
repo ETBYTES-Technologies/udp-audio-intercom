@@ -53,6 +53,40 @@ def get_receiver_ip():
             print("Invalid IP address, please try again.")
 
 
+def choose_device(p, kind):
+    key = "maxInputChannels" if kind == "input" else "maxOutputChannels"
+    devices = [(i, p.get_device_info_by_index(i)["name"])
+               for i in range(p.get_device_count())
+               if p.get_device_info_by_index(i)[key] > 0]
+
+    if not devices:
+        print(f"No {kind} devices found, using default.")
+        return None
+
+    print(f"\nAvailable {kind} devices:")
+    for index, name in devices:
+        print(f"  [{index}] {name}")
+
+    try:
+        get_default = (p.get_default_input_device_info if kind == "input"
+                       else p.get_default_output_device_info)
+        default_index = get_default()["index"]
+    except OSError:
+        default_index = None
+
+    valid_indices = {index for index, _ in devices}
+    prompt = "Select device index"
+    prompt += f" [default: {default_index}]: " if default_index is not None else ": "
+
+    while True:
+        choice = input(prompt).strip()
+        if choice == "" and default_index is not None:
+            return default_index
+        if choice.isdigit() and int(choice) in valid_indices:
+            return int(choice)
+        print("Please enter a valid device number from the list above.")
+
+
 def audio_level(data):
     samples = struct.unpack(f"<{len(data) // 2}h", data)
     peak = max(abs(s) for s in samples) if samples else 0
@@ -69,15 +103,19 @@ def render_meter(level):
 def main():
     receiver_ip = get_receiver_ip()
 
+    p = pyaudio.PyAudio()
+    device_index = choose_device(p, "input")
+
     try:
-        p = pyaudio.PyAudio()
         stream = p.open(format=FORMAT,
                         channels=CHANNELS,
                         rate=RATE,
                         input=True,
+                        input_device_index=device_index,
                         frames_per_buffer=CHUNK)
     except OSError as e:
         print(f"Could not open microphone: {e}")
+        p.terminate()
         return
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

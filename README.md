@@ -26,8 +26,8 @@ pip install -r requirements.txt
 
 ## Setup
 
-1. Start `receiver.py` first — no configuration needed.
-2. Start `transmitter.py`. It broadcasts a discovery message on the network and auto-fills the receiver's IP if one answers within a few seconds; otherwise it falls back to prompting you to type it in.
+1. Start `receiver.py` first, then pick which speaker/output device to play audio on from the numbered list it prints (press Enter to use the system default).
+2. Start `transmitter.py`, then pick which microphone/input device to capture from the same way. It also broadcasts a discovery message on the network and auto-fills the receiver's IP if one answers within a few seconds; otherwise it falls back to prompting you to type it in.
 3. Both scripts use `RECEIVER_PORT = 5005` and `DISCOVERY_PORT = 5006` by default — edit both files if you change either.
 4. Make sure ports 5005/UDP and 5006/UDP are allowed through any firewall between the two machines, and that broadcast traffic isn't blocked on the network.
 
