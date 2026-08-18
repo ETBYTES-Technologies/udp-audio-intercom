@@ -49,8 +49,11 @@ Each script shows a live VU meter in the terminal that fills up with incoming/ou
 
 ```
 Transmitting [########----------------------]
+Muted        [--------------------------] 
 Receiving    [####------------------------] 
 ```
+
+The transmitter is hands-free by default: it computes the RMS loudness of each captured chunk and only sends it when the level is at or above `VAD_THRESHOLD` (500), so background noise and silence aren't streamed. Adjust `VAD_THRESHOLD` in `transmitter.py` if it's cutting off quiet speech or picking up too much noise.
 
 ## Error handling
 

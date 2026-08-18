@@ -17,6 +17,8 @@ DISCOVERY_TIMEOUT = 3
 METER_WIDTH = 30
 MAX_AMPLITUDE = 32768
 
+VAD_THRESHOLD = 500
+
 
 def discover_receiver_ip(timeout=DISCOVERY_TIMEOUT):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -87,16 +89,20 @@ def choose_device(p, kind):
         print("Please enter a valid device number from the list above.")
 
 
-def audio_level(data):
+def audio_rms(data):
     samples = struct.unpack(f"<{len(data) // 2}h", data)
-    peak = max(abs(s) for s in samples) if samples else 0
-    return peak / MAX_AMPLITUDE
+    if not samples:
+        return 0.0
+    mean_square = sum(s * s for s in samples) / len(samples)
+    return mean_square ** 0.5
 
 
-def render_meter(level):
-    filled = int(level * METER_WIDTH)
+def render_meter(level, active):
+    normalized = min(level / MAX_AMPLITUDE, 1.0)
+    filled = int(normalized * METER_WIDTH)
     bar = "#" * filled + "-" * (METER_WIDTH - filled)
-    sys.stdout.write(f"\rTransmitting [{bar}] ")
+    label = "Transmitting" if active else "Muted       "
+    sys.stdout.write(f"\r{label} [{bar}] ")
     sys.stdout.flush()
 
 
@@ -130,13 +136,17 @@ def main():
                 print(f"\nMicrophone read error: {e}")
                 continue
 
-            try:
-                sock.sendto(data, (receiver_ip, RECEIVER_PORT))
-            except OSError as e:
-                print(f"\nFailed to send audio: {e}")
-                continue
+            level = audio_rms(data)
+            active = level >= VAD_THRESHOLD
 
-            render_meter(audio_level(data))
+            if active:
+                try:
+                    sock.sendto(data, (receiver_ip, RECEIVER_PORT))
+                except OSError as e:
+                    print(f"\nFailed to send audio: {e}")
+                    continue
+
+            render_meter(level, active)
     except KeyboardInterrupt:
         print("\nStopping...")
     finally:
