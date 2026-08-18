@@ -44,7 +44,18 @@ On the **transmitting** machine (the one with the microphone):
 python transmitter.py
 ```
 
-Press `Ctrl+C` on either side to stop.
+Each script shows a live VU meter in the terminal that fills up with incoming/outgoing audio level, and press `Ctrl+C` on either side to stop.
+
+```
+Transmitting [########----------------------]
+Receiving    [####------------------------] 
+```
+
+## Error handling
+
+- The transmitter validates the IP address you enter and re-prompts on invalid input.
+- Both scripts report and recover from microphone/speaker and socket errors during the audio loop instead of crashing (e.g. a dropped packet or a momentary device glitch won't kill the stream).
+- The receiver reports a clear error if the port is already in use, and both scripts report a clear error if the audio device can't be opened.
 
 ## Notes
 
