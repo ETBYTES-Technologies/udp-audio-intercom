@@ -1,5 +1,9 @@
 # UDP Audio Intercom
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python 3](https://img.shields.io/badge/python-3-blue.svg)](https://www.python.org/downloads/)
+[![PyAudio](https://img.shields.io/badge/dependency-PyAudio-orange.svg)](https://pypi.org/project/PyAudio/)
+
 A minimal real-time audio intercom over a local network. `transmitter.py` captures microphone audio and streams it via UDP; `receiver.py` listens for that stream and plays it back through the speakers.
 
 ## Requirements
