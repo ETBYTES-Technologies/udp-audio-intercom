@@ -26,8 +26,8 @@ pip install -r requirements.txt
 
 ## Setup
 
-1. Open `transmitter.py` and set `RECEIVER_IP` to the IP address of the machine that will run `receiver.py`.
-2. Both scripts use `RECEIVER_PORT = 5005` by default — keep them in sync if you change it.
+1. Know the IP address of the machine that will run `receiver.py` — `transmitter.py` will prompt for it at startup.
+2. Both scripts use `RECEIVER_PORT = 5005` by default — edit both files if you change it.
 3. Make sure port 5005/UDP is allowed through any firewall between the two machines.
 
 ## Running

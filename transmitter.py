@@ -6,7 +6,7 @@ FORMAT = pyaudio.paInt16
 CHANNELS = 1
 RATE = 44100
 
-RECEIVER_IP = '192.168.1.100'
+RECEIVER_IP = input("Enter receiver's IP address: ").strip()
 RECEIVER_PORT = 5005
 
 p = pyaudio.PyAudio()
