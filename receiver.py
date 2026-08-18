@@ -1,6 +1,7 @@
 import socket
 import struct
 import sys
+import threading
 import pyaudio
 
 CHUNK = 1024
@@ -11,8 +12,33 @@ RATE = 44100
 RECEIVER_IP = '0.0.0.0'
 RECEIVER_PORT = 5005
 
+DISCOVERY_PORT = 5006
+DISCOVERY_MESSAGE = b"UDP_AUDIO_INTERCOM_DISCOVER"
+DISCOVERY_REPLY = b"UDP_AUDIO_INTERCOM_HERE"
+
 METER_WIDTH = 30
 MAX_AMPLITUDE = 32768
+
+
+def discovery_listener():
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    try:
+        sock.bind((RECEIVER_IP, DISCOVERY_PORT))
+    except OSError as e:
+        print(f"Discovery listener disabled: {e}")
+        return
+
+    while True:
+        try:
+            data, addr = sock.recvfrom(1024)
+        except OSError:
+            continue
+        if data == DISCOVERY_MESSAGE:
+            try:
+                sock.sendto(DISCOVERY_REPLY, addr)
+            except OSError:
+                pass
 
 
 def audio_level(data):
@@ -48,6 +74,8 @@ def main():
         stream.close()
         p.terminate()
         return
+
+    threading.Thread(target=discovery_listener, daemon=True).start()
 
     print(f"Receiver listening on port {RECEIVER_PORT}...")
 

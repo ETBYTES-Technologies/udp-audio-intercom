@@ -9,11 +9,41 @@ CHANNELS = 1
 RATE = 44100
 RECEIVER_PORT = 5005
 
+DISCOVERY_PORT = 5006
+DISCOVERY_MESSAGE = b"UDP_AUDIO_INTERCOM_DISCOVER"
+DISCOVERY_REPLY = b"UDP_AUDIO_INTERCOM_HERE"
+DISCOVERY_TIMEOUT = 3
+
 METER_WIDTH = 30
 MAX_AMPLITUDE = 32768
 
 
+def discover_receiver_ip(timeout=DISCOVERY_TIMEOUT):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+    sock.settimeout(timeout)
+    try:
+        sock.sendto(DISCOVERY_MESSAGE, ('255.255.255.255', DISCOVERY_PORT))
+        data, addr = sock.recvfrom(1024)
+        if data == DISCOVERY_REPLY:
+            return addr[0]
+    except OSError:
+        pass
+    finally:
+        sock.close()
+    return None
+
+
 def get_receiver_ip():
+    print("Searching for a receiver on the network...")
+    discovered_ip = discover_receiver_ip()
+    if discovered_ip:
+        choice = input(f"Found receiver at {discovered_ip} — use it? [Y/n] ").strip().lower()
+        if choice in ("", "y", "yes"):
+            return discovered_ip
+    else:
+        print("No receiver found automatically.")
+
     while True:
         ip = input("Enter receiver's IP address: ").strip()
         try:

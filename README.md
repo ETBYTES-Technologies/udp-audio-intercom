@@ -26,9 +26,10 @@ pip install -r requirements.txt
 
 ## Setup
 
-1. Know the IP address of the machine that will run `receiver.py` — `transmitter.py` will prompt for it at startup.
-2. Both scripts use `RECEIVER_PORT = 5005` by default — edit both files if you change it.
-3. Make sure port 5005/UDP is allowed through any firewall between the two machines.
+1. Start `receiver.py` first — no configuration needed.
+2. Start `transmitter.py`. It broadcasts a discovery message on the network and auto-fills the receiver's IP if one answers within a few seconds; otherwise it falls back to prompting you to type it in.
+3. Both scripts use `RECEIVER_PORT = 5005` and `DISCOVERY_PORT = 5006` by default — edit both files if you change either.
+4. Make sure ports 5005/UDP and 5006/UDP are allowed through any firewall between the two machines, and that broadcast traffic isn't blocked on the network.
 
 ## Running
 
@@ -60,4 +61,5 @@ Receiving    [####------------------------]
 ## Notes
 
 - Audio is sent uncompressed (16-bit PCM, mono, 44100 Hz), so this is intended for LAN use — it will use significant bandwidth and has no packet-loss handling.
-- No encryption or authentication — anyone who can reach the port can send it audio to play. Don't expose this to the open internet.
+- No encryption or authentication — anyone who can reach the port can send it audio to play, or answer a discovery request. Don't expose this to the open internet.
+- Discovery relies on the subnet's broadcast address (`255.255.255.255`) reaching the receiver, which usually only works within the same LAN segment/Wi-Fi network — it won't cross routers or VPNs.
